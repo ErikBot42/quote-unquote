@@ -494,25 +494,25 @@ __quote![
             $crate::__private::TokenStream::new()
         };
 
-        // Special case rule for a single tt, for performance.
-        ($tt:tt) => {{
-            let mut _s = $crate::__private::TokenStream::new();
-            $crate::quote_token!{$tt _s}
-            _s
-        }};
+        // // Special case rule for a single tt, for performance.
+        // ($tt:tt) => {{
+        //     let mut _s = $crate::__private::TokenStream::new();
+        //     $crate::quote_token!{$tt _s}
+        //     _s
+        // }};
 
-        // Special case rules for two tts, for performance.
-        (# $var:ident) => {{
-            let mut _s = $crate::__private::TokenStream::new();
-            $crate::ToTokens::to_tokens(&$var, &mut _s);
-            _s
-        }};
-        ($tt1:tt $tt2:tt) => {{
-            let mut _s = $crate::__private::TokenStream::new();
-            $crate::quote_token!{$tt1 _s}
-            $crate::quote_token!{$tt2 _s}
-            _s
-        }};
+        // // Special case rules for two tts, for performance.
+        // (# $var:ident) => {{
+        //     let mut _s = $crate::__private::TokenStream::new();
+        //     $crate::ToTokens::to_tokens(&$var, &mut _s);
+        //     _s
+        // }};
+        // ($tt1:tt $tt2:tt) => {{
+        //     let mut _s = $crate::__private::TokenStream::new();
+        //     $crate::quote_token!{$tt1 _s}
+        //     $crate::quote_token!{$tt2 _s}
+        //     _s
+        // }};
 
         // Rule for any other number of tokens.
         ($($tt:tt)*) => {{
@@ -942,6 +942,16 @@ macro_rules! quote_token_with_context {
     };
     // ... and one step later.
     ($tokens:ident $b3:tt $b2:tt # ($var:ident) $a1:tt $a2:tt $a3:tt) => {};
+
+    // an unquote
+    ($tokens:ident $b3:tt $b2:tt unquote (!) $expr:tt $a2:tt $a3:tt) => {
+        let to_add = $expr;
+        $crate::ToTokens::to_tokens(&to_add, &mut $tokens);
+    };
+    // ... and one step later.
+    ($tokens:ident $b3:tt unquote ! ($expr:tt) $a1:tt $a2:tt $a3:tt) => {};
+    // ... and one step before.
+    ($tokens:ident $b3:tt $b2:tt $b1:tt (unquote) ! $a2:tt $a3:tt) => {};
 
     // An ordinary token, not part of any interpolation.
     ($tokens:ident $b3:tt $b2:tt $b1:tt ($curr:tt) $a1:tt $a2:tt $a3:tt) => {

@@ -44,6 +44,35 @@ fn test_quote_impl() {
 }
 
 #[test]
+fn test_unquote_impl() {
+    let tokens = quote! {
+        unquote! {
+            quote! {
+                impl<'a, T: ToTokens> ToTokens for &'a T {
+                    unquote! {
+                        quote! {
+                            fn to_tokens(&self, tokens: &mut TokenStream) {
+                                (**self).to_tokens(tokens)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    let expected = concat!(
+        "impl < 'a , T : ToTokens > ToTokens for & 'a T { ",
+        "fn to_tokens (& self , tokens : & mut TokenStream) { ",
+        "(* * self) . to_tokens (tokens) ",
+        "} ",
+        "}"
+    );
+
+    assert_eq!(expected, tokens.to_string());
+}
+
+#[test]
 fn test_quote_spanned_impl() {
     let span = Span::call_site();
     let tokens = quote_spanned! {span=>
